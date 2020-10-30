@@ -29,9 +29,18 @@ class Har2JMeter {
                     request.postData?.params?.each { param ->
                         sampler.arguments[param.name] = param.value
                     }
-                    request.queryString?.each { param ->
-                        sampler.arguments[param.name] = param.value
-                    }
+                    def string = request.queryString
+                    string?.each { param ->
+                       //FIX parameter inversion
+                        def name = param.name
+                        if(name==null)
+                        {
+                            sampler.arguments[param.value] = name
+                        }
+                        else {
+                            sampler.arguments[name] = param.value
+                        }
+                        }
                     jmeterSamplers.add(sampler)
                 }
             } catch (MalformedURLException exp) {
@@ -80,12 +89,16 @@ class Har2JMeter {
                                 elementProp(name: "HTTPsampler.Arguments", elementType: "Arguments", guiclass: "HTTPArgumentsPanel", testclass: "Arguments", testname: "User Defined Variables", enabled: "true") {
                                     collectionProp(name: "Arguments.arguments") {
                                         sampler.arguments.each { param ->
-                                            elementProp(name:param.key, elementType:"HTTPArgument"){
-                                                boolProp(name:"HTTPArgument.always_encode", false)
-                                                stringProp(name:"Argument.value", param.value)
-                                                stringProp(name:"Argument.metadata", "=")
-                                                boolProp(name:"HTTPArgument.use_equals", true)
-                                                stringProp(name:"Argument.name", param.key)
+                                            if(!param.key.toString().equals("ticket")) {
+                                                elementProp(name: param.key, elementType: "HTTPArgument") {
+
+                                                    boolProp(name: "HTTPArgument.always_encode", false)
+                                                    stringProp(name: "Argument.value", param.value)
+                                                    stringProp(name: "Argument.metadata", "=")
+                                                    boolProp(name: "HTTPArgument.use_equals", true)
+                                                    stringProp(name: "Argument.name", param.key)
+                                                }
+
                                             }
                                         }
                                     }
@@ -94,7 +107,7 @@ class Har2JMeter {
                                 stringProp(name: "HTTPSampler.port", "\${port}")
                                 stringProp(name: "HTTPSampler.connect_timeout", "")
                                 stringProp(name: "HTTPSampler.response_timeout", "")
-                                stringProp(name: "HTTPSampler.protocol", "https")
+                                stringProp(name: "HTTPSampler.protocol", "http")
                                 stringProp(name: "HTTPSampler.contentEncoding", "")
                                 stringProp(name: "HTTPSampler.path", sampler.path)
                                 stringProp(name: "HTTPSampler.method", sampler.method.toUpperCase())
@@ -112,13 +125,9 @@ class Har2JMeter {
                                     HeaderManager(guiclass: "HeaderPanel", testclass: "HeaderManager", testname: "HTTP Header Manager", enabled: "true") {
                                         collectionProp(name: "HeaderManager.headers") {
                                             sampler.headers.each { header ->
-                                                if(header.key.toString().equals("Host"))
+                                                if(!header.key.toString().equals("Host"))
                                                 {
-
-                                                }
-
-                                                else {
-                                                    elementProp(name: "", elementType: "Header") {
+                                                         elementProp(name: "", elementType: "Header") {
                                                         stringProp(name: "Header.name", header.key)
                                                         stringProp(name: "Header.value", header.value)
                                                     }
