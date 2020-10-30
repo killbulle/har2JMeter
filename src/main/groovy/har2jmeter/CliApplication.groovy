@@ -1,5 +1,7 @@
 package har2jmeter
 
+import groovy.cli.picocli.CliBuilder
+
 def cli = new CliBuilder(usage: 'har2JMeter -har [*.har] -jmx [*.jmx]', header: 'Options:')
 cli.help('print this message.')
 cli.har(args: 1, 'The har input file which could be converted to a JMeter JMX file.')
@@ -15,7 +17,9 @@ def withHttpHeaders = options.header ?: true
 
 try {
     def har2JMeter = new Har2JMeter(withHttpHeaders: withHttpHeaders)
-    har2JMeter.convert(new File(options.har), new File(options.jmx))
+    def file = new File(options.har)
+    def file1 = new File(options.jmx)
+    har2JMeter.convert(file, file1)
 } catch (Throwable exp) {
     println exp.message
 }

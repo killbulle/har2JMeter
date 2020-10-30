@@ -1,6 +1,6 @@
 apply plugin: 'groovy'
 apply plugin: 'application'
-apply plugin: 'eclipse'
+apply plugin: 'maven'
 
 version = '0.4.0.SNAPSHOT'
 
@@ -11,12 +11,9 @@ repositories {
 }
 
 dependencies {
-    groovy('org.codehaus.groovy:groovy-all:2.0.5')
-    compile('commons-cli:commons-cli:1.2')
+    compile "commons-cli:commons-cli:1.2"
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.5'
     testCompile('org.spockframework:spock-core:0.7-groovy-2.0')
     testCompile('xmlunit:xmlunit:1.4')
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.4'
-}

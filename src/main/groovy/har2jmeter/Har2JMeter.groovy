@@ -16,7 +16,7 @@ class Har2JMeter {
 
         def jmeterSamplers = []
         def jsonSlurper = new JsonSlurper()
-        def har = jsonSlurper.parse(new FileReader(harFile))
+        def har = jsonSlurper.parse(new InputStreamReader(new FileInputStream(harFile), "UTF-8"))
         har.log.entries.each { entry ->
             try {
                 def request = entry.request
@@ -90,8 +90,8 @@ class Har2JMeter {
                                         }
                                     }
                                 }
-                                stringProp(name: "HTTPSampler.domain", sampler.domain)
-                                stringProp(name: "HTTPSampler.port", 443)
+                                stringProp(name: "HTTPSampler.domain", "\${ip}")
+                                stringProp(name: "HTTPSampler.port", "\${port}")
                                 stringProp(name: "HTTPSampler.connect_timeout", "")
                                 stringProp(name: "HTTPSampler.response_timeout", "")
                                 stringProp(name: "HTTPSampler.protocol", "https")
@@ -112,9 +112,16 @@ class Har2JMeter {
                                     HeaderManager(guiclass: "HeaderPanel", testclass: "HeaderManager", testname: "HTTP Header Manager", enabled: "true") {
                                         collectionProp(name: "HeaderManager.headers") {
                                             sampler.headers.each { header ->
-                                                elementProp(name: "", elementType: "Header") {
-                                                    stringProp(name: "Header.name", header.key)
-                                                    stringProp(name: "Header.value", header.value)
+                                                if(header.key.toString().equals("Host"))
+                                                {
+
+                                                }
+
+                                                else {
+                                                    elementProp(name: "", elementType: "Header") {
+                                                        stringProp(name: "Header.name", header.key)
+                                                        stringProp(name: "Header.value", header.value)
+                                                    }
                                                 }
                                             }
                                         }
